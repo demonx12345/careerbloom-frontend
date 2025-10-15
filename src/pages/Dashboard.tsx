@@ -27,9 +27,24 @@ const Dashboard = () => {
   const fetchCloudData = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/hello');
-      const data = await response.json();
-      setCloudData(data);
+      // In development, use mock data. In production (Vercel), this will call the actual serverless function
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com');
+      
+      if (isDevelopment) {
+        // Simulate serverless function response for development
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+        setCloudData({
+          message: "This is a serverless function running on Vercel Cloud",
+          timestamp: new Date().toISOString(),
+          environment: "Vercel Cloud Environment",
+          status: "active",
+          note: "This is a mock response in development. Deploy to Vercel to see the real serverless function."
+        });
+      } else {
+        const response = await fetch('/api/hello');
+        const data = await response.json();
+        setCloudData(data);
+      }
     } catch (error) {
       console.error('Error fetching cloud data:', error);
       setCloudData({ error: 'Failed to connect to cloud service' });
