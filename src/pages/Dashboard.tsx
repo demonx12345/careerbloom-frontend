@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { 
   TrendingUp, 
   Target, 
@@ -14,10 +15,29 @@ import {
   Plus,
   Star,
   Calendar,
-  BarChart3
+  BarChart3,
+  Cloud,
+  RefreshCw
 } from "lucide-react";
 
 const Dashboard = () => {
+  const [cloudData, setCloudData] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchCloudData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/hello');
+      const data = await response.json();
+      setCloudData(data);
+    } catch (error) {
+      console.error('Error fetching cloud data:', error);
+      setCloudData({ error: 'Failed to connect to cloud service' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const skillsData = [
     { name: "JavaScript", level: 85, category: "Technical" },
     { name: "React", level: 78, category: "Technical" },
@@ -114,6 +134,50 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Cloud Service Demo */}
+        <Card className="shadow-soft border-0 mb-8 bg-gradient-to-r from-primary/5 to-secondary/5">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <Cloud className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-semibold">Vercel Cloud Service</CardTitle>
+                  <CardDescription>Serverless function demonstration</CardDescription>
+                </div>
+              </div>
+              <Button 
+                onClick={fetchCloudData} 
+                disabled={loading}
+                size="sm"
+                variant="outline"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Test Cloud
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          {cloudData && (
+            <CardContent>
+              <div className="bg-card rounded-lg p-4 border">
+                <pre className="text-sm overflow-x-auto">
+                  {JSON.stringify(cloudData, null, 2)}
+                </pre>
+              </div>
+            </CardContent>
+          )}
+        </Card>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
